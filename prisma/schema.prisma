@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  address     String?
+  phone       String?
+  email       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ingredients Ingredient[]
+  recipes     Recipe[]
+  menuItems   MenuItem[]
+  users       User[]
+
+  @@map("restaurants")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  role         UserRole @default(OWNER)
+  restaurantId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
+
+  @@map("users")
+}
+
+model Ingredient {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  unit         String   // e.g., "kg", "g", "l", "ml", "pieces"
+  costPerUnit  Decimal  @db.Decimal(10, 2)
+  supplier     String?
+  restaurantId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
+  recipeItems    RecipeItem[]
+
+  @@map("ingredients")
+}
+
+model Recipe {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  instructions String?
+  prepTime     Int?     // in minutes
+  cookTime     Int?     // in minutes
+  servings     Int?
+  restaurantId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id])
+  recipeItems  RecipeItem[]
+  menuItems    MenuItem[]
+
+  @@map("recipes")
+}
+
+model RecipeItem {
+  id          String   @id @default(cuid())
+  quantity    Decimal  @db.Decimal(10, 3)
+  recipeId    String
+  ingredientId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([recipeId, ingredientId])
+  @@map("recipe_items")
+}
+
+model MenuItem {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  price        Decimal  @db.Decimal(10, 2)
+  category     String?
+  isAvailable  Boolean  @default(true)
+  restaurantId String
+  recipeId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  recipe     Recipe?    @relation(fields: [recipeId], references: [id])
+
+  @@map("menu_items")
+}
+
+model CostCalculation {
+  id           String   @id @default(cuid())
+  menuItemId   String
+  totalCost    Decimal  @db.Decimal(10, 2)
+  profitMargin Decimal  @db.Decimal(5, 2) // percentage
+  calculatedAt DateTime @default(now())
+
+  // Relations
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@map("cost_calculations")
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+}
