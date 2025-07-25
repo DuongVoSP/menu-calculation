@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getTrialData } from "@/services/trialService";
 // (Icons will be imported only if used in the UI rendering)
 import { Plus, Trash2, Package, Ruler, DollarSign, Coffee, Calculator, Percent, ChefHat, Hash, ShoppingCart, MenuSquare, UtensilsCrossed } from "lucide-react";
 
@@ -138,24 +139,24 @@ export default function TrialPage() {
   };
 
   useEffect(() => {
-    fetch("/api/trial")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch trial data");
-        return res.json();
-      })
-      .then((d) => {
-        // Attach recipes to drinks
-        const drinksWithRecipes = d.drinks.map((drink: Drink) => ({
-          ...drink,
-          recipe: demoRecipes[drink.name] || [],
-        }));
-        setData(d);
-        setDrinks(drinksWithRecipes);
-        // Initial cost calculation
-        setTimeout(() => recalcSummary(drinksWithRecipes), 0);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    try {
+      // Get data from service instead of API
+      const d = getTrialData();
+      
+      // Attach recipes to drinks
+      const drinksWithRecipes = d.drinks.map((drink: Drink) => ({
+        ...drink,
+        recipe: demoRecipes[drink.name] || [],
+      }));
+      setData(d);
+      setDrinks(drinksWithRecipes);
+      // Initial cost calculation
+      setTimeout(() => recalcSummary(drinksWithRecipes), 0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load trial data");
+    } finally {
+      setLoading(false);
+    }
     // eslint-disable-next-line
   }, []);
 

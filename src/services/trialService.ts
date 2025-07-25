@@ -1,10 +1,29 @@
-import { NextResponse } from 'next/server';
+// Import interfaces from the main component to ensure consistency
+interface RecipeItem {
+  ingredient: string;
+  quantity: number;
+}
 
-// Configure for static export
-export const dynamic = 'force-static';
+interface Drink {
+  name: string;
+  cost: number;
+  price: number;
+  profit: number;
+  profitMargin: number;
+  recipe: RecipeItem[];
+}
 
-// Define 5 simple drinks
-const drinks = [
+interface TrialData {
+  drinks: Drink[];
+  summary: {
+    totalProfit: string;
+    averageProfit: string;
+    averageMargin: string;
+  };
+}
+
+// Define 5 simple drinks (without recipes initially)
+const baseDrinks = [
   { name: 'Espresso', cost: 1.0, price: 2.5 },
   { name: 'Americano', cost: 1.2, price: 3.0 },
   { name: 'Latte', cost: 1.5, price: 3.8 },
@@ -12,22 +31,23 @@ const drinks = [
   { name: 'Mocha', cost: 1.7, price: 4.2 },
 ];
 
-export async function GET() {
-  // Calculate profit for each drink
-  const result = drinks.map(drink => ({
+export function getTrialData(): TrialData {
+  // Calculate profit for each drink and add empty recipe
+  const result = baseDrinks.map(drink => ({
     name: drink.name,
     cost: drink.cost,
     price: drink.price,
     profit: parseFloat((drink.price - drink.cost).toFixed(2)),
     profitMargin: parseFloat((((drink.price - drink.cost) / drink.price) * 100).toFixed(1)),
+    recipe: [] as RecipeItem[], // Add empty recipe array
   }));
 
-  return NextResponse.json({
+  return {
     drinks: result,
     summary: {
       totalProfit: result.reduce((sum, d) => sum + d.profit, 0).toFixed(2),
       averageProfit: (result.reduce((sum, d) => sum + d.profit, 0) / result.length).toFixed(2),
       averageMargin: (result.reduce((sum, d) => sum + d.profitMargin, 0) / result.length).toFixed(1) + '%',
     }
-  });
-} 
+  };
+}
