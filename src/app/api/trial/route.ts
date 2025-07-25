@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+// Configure for static export
+export const dynamic = 'force-static';
+
 // Define 5 simple drinks
 const drinks = [
   { name: 'Espresso', cost: 1.0, price: 2.5 },
