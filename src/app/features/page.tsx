@@ -2,12 +2,9 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Coffee,
   BarChart2,
   Store,
   Clock,
-  Smile,
-  TrendingUp,
   Calculator,
   Shield,
   Zap,

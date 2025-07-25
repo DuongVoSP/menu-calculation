@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 // (Icons will be imported only if used in the UI rendering)
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Package, Ruler, DollarSign, Coffee, Calculator, Percent, ChefHat, Hash, ShoppingCart, MenuSquare, UtensilsCrossed } from "lucide-react";
 
 interface Ingredient {
   name: string;
@@ -151,6 +151,8 @@ export default function TrialPage() {
         }));
         setData(d);
         setDrinks(drinksWithRecipes);
+        // Initial cost calculation
+        setTimeout(() => recalcSummary(drinksWithRecipes), 0);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -179,22 +181,37 @@ export default function TrialPage() {
 
   // Recalculate profit/margin and summary when drinks change
   function recalcSummary(updatedDrinks: Drink[]) {
+    // First recalculate costs for all drinks
+    const drinksWithUpdatedCosts = updatedDrinks.map(drink => {
+      const cost = recalcDrinkCost(drink);
+      const profit = drink.price - cost;
+      const profitMargin = drink.price > 0 ? (profit / drink.price) * 100 : 0;
+      return {
+        ...drink,
+        cost,
+        profit,
+        profitMargin
+      };
+    });
+
     const summary = {
-      totalProfit: updatedDrinks
+      totalProfit: drinksWithUpdatedCosts
         .reduce((sum, d) => sum + d.profit, 0)
         .toFixed(2),
-      averageProfit: (
-        updatedDrinks.reduce((sum, d) => sum + d.profit, 0) /
-        updatedDrinks.length
-      ).toFixed(2),
-      averageMargin: (
-        updatedDrinks.reduce((sum, d) => sum + d.profitMargin, 0) /
-        updatedDrinks.length
-      ).toFixed(1),
+      averageProfit: drinksWithUpdatedCosts.length > 0 ? (
+        drinksWithUpdatedCosts.reduce((sum, d) => sum + d.profit, 0) /
+        drinksWithUpdatedCosts.length
+      ).toFixed(2) : "0.00",
+      averageMargin: drinksWithUpdatedCosts.length > 0 ? (
+        drinksWithUpdatedCosts.reduce((sum, d) => sum + d.profitMargin, 0) /
+        drinksWithUpdatedCosts.length
+      ).toFixed(1) : "0.0",
     };
+    
     setData((prev) =>
-      prev ? { ...prev, summary, drinks: updatedDrinks } : null
+      prev ? { ...prev, summary, drinks: drinksWithUpdatedCosts } : null
     );
+    setDrinks(drinksWithUpdatedCosts);
   }
 
   // INGREDIENT CRUD
@@ -221,6 +238,11 @@ export default function TrialPage() {
       }
       return { ...ing, [field]: value };
     }));
+    
+    // Recalculate costs when ingredient prices change
+    if (field === "price") {
+      setTimeout(() => recalcSummary(drinks), 0);
+    }
   };
   const handleDeleteIngredient = (idx: number) => {
     if (!window.confirm("Delete this ingredient?")) return;
@@ -241,26 +263,45 @@ export default function TrialPage() {
     let price = Number(newDrink.price.replace(/[^\d.]/g, ""));
     if (isNaN(price) || price < 0) price = 0;
     const priceUSD = language === "vi" ? price / 24000 : price;
-    setDrinks(prev => [...prev, { name: newDrink.name.trim(), price: priceUSD, cost: 0, profit: 0, profitMargin: 0, recipe: [] }]);
+    setDrinks(prev => {
+      const updated = [...prev, { name: newDrink.name.trim(), price: priceUSD, cost: 0, profit: 0, profitMargin: 0, recipe: [] }];
+      // Recalculate costs when new drink is added
+      setTimeout(() => recalcSummary(updated), 0);
+      return updated;
+    });
     setNewDrink({ name: "", price: "" });
   };
   const handleUpdateDrink = (idx: number, field: "name" | "price", value: string) => {
-    setDrinks(prev => prev.map((drink, i) => {
-      if (i !== idx) return drink;
+    setDrinks(prev => {
+      const updated = prev.map((drink, i) => {
+        if (i !== idx) return drink;
+        if (field === "price") {
+          let raw = value;
+          if (language === "vi") raw = raw.replace(/\./g, "");
+          let price = Number(raw.replace(/[^\d.]/g, ""));
+          if (isNaN(price) || price < 0) price = 0;
+          const priceUSD = language === "vi" ? price / 24000 : price;
+          return { ...drink, price: priceUSD };
+        }
+        return { ...drink, [field]: value };
+      });
+      
+      // Recalculate costs when drink prices change
       if (field === "price") {
-        let raw = value;
-        if (language === "vi") raw = raw.replace(/\./g, "");
-        let price = Number(raw.replace(/[^\d.]/g, ""));
-        if (isNaN(price) || price < 0) price = 0;
-        const priceUSD = language === "vi" ? price / 24000 : price;
-        return { ...drink, price: priceUSD };
+        setTimeout(() => recalcSummary(updated), 0);
       }
-      return { ...drink, [field]: value };
-    }));
+      
+      return updated;
+    });
   };
   const handleDeleteDrink = (idx: number) => {
     if (!window.confirm("Delete this drink?")) return;
-    setDrinks(prev => prev.filter((_, i) => i !== idx));
+    setDrinks(prev => {
+      const updated = prev.filter((_, i) => i !== idx);
+      // Recalculate costs when drinks are deleted
+      setTimeout(() => recalcSummary(updated), 0);
+      return updated;
+    });
   };
 
   // RECIPE CRUD
@@ -268,48 +309,75 @@ export default function TrialPage() {
     if (!newRecipeItem.ingredient || !newRecipeItem.quantity) return;
     let qty = Number(newRecipeItem.quantity.replace(/[^\d.]/g, ""));
     if (isNaN(qty) || qty < 0) qty = 0;
-    setDrinks(prev => prev.map((drink, i) => {
-      if (i !== drinkIdx) return drink;
-      if (drink.recipe.some(item => item.ingredient === newRecipeItem.ingredient)) return drink;
-      return { ...drink, recipe: [...drink.recipe, { ingredient: newRecipeItem.ingredient, quantity: qty }] };
-    }));
+    setDrinks(prev => {
+      const updated = prev.map((drink, i) => {
+        if (i !== drinkIdx) return drink;
+        if (drink.recipe.some(item => item.ingredient === newRecipeItem.ingredient)) return drink;
+        return { ...drink, recipe: [...drink.recipe, { ingredient: newRecipeItem.ingredient, quantity: qty }] };
+      });
+      
+      // Recalculate costs when recipe changes
+      setTimeout(() => recalcSummary(updated), 0);
+      return updated;
+    });
     setNewRecipeItem({ ingredient: "", quantity: "" });
   };
   const handleUpdateRecipeItem = (drinkIdx: number, itemIdx: number, field: "ingredient" | "quantity", value: string) => {
-    setDrinks(prev => prev.map((drink, i) => {
-      if (i !== drinkIdx) return drink;
-      const newRecipe = drink.recipe.map((item, j) => {
-        if (j !== itemIdx) return item;
-        if (field === "quantity") {
-          let qty = Number(value.replace(/[^\d.]/g, ""));
-          if (isNaN(qty) || qty < 0) qty = 0;
-          return { ...item, quantity: qty };
-        }
-        return { ...item, [field]: value };
+    setDrinks(prev => {
+      const updated = prev.map((drink, i) => {
+        if (i !== drinkIdx) return drink;
+        const newRecipe = drink.recipe.map((item, j) => {
+          if (j !== itemIdx) return item;
+          if (field === "quantity") {
+            let qty = Number(value.replace(/[^\d.]/g, ""));
+            if (isNaN(qty) || qty < 0) qty = 0;
+            return { ...item, quantity: qty };
+          }
+          return { ...item, [field]: value };
+        });
+        return { ...drink, recipe: newRecipe };
       });
-      return { ...drink, recipe: newRecipe };
-    }));
+      
+      // Recalculate costs when recipe changes
+      setTimeout(() => recalcSummary(updated), 0);
+      return updated;
+    });
   };
   const handleDeleteRecipeItem = (drinkIdx: number, itemIdx: number) => {
     if (!window.confirm("Delete this ingredient from recipe?")) return;
-    setDrinks(prev => prev.map((drink, i) => {
-      if (i !== drinkIdx) return drink;
-      return { ...drink, recipe: drink.recipe.filter((_, j) => j !== itemIdx) };
-    }));
+    setDrinks(prev => {
+      const updated = prev.map((drink, i) => {
+        if (i !== drinkIdx) return drink;
+        return { ...drink, recipe: drink.recipe.filter((_, j) => j !== itemIdx) };
+      });
+      
+      // Recalculate costs when recipe changes
+      setTimeout(() => recalcSummary(updated), 0);
+      return updated;
+    });
   };
 
   useEffect(() => {
     if (data) {
       // Attach recipes again if language changes
-      setDrinks(
-        data.drinks.map((drink: Drink) => ({
-          ...drink,
-          recipe: demoRecipes[drink.name] || [],
-        }))
-      );
+      const drinksWithRecipes = data.drinks.map((drink: Drink) => ({
+        ...drink,
+        recipe: demoRecipes[drink.name] || [],
+      }));
+      setDrinks(drinksWithRecipes);
+      // Recalculate costs after setting drinks
+      setTimeout(() => recalcSummary(drinksWithRecipes), 0);
     }
     // eslint-disable-next-line
   }, [language]);
+
+  // Recalculate costs when ingredients change
+  useEffect(() => {
+    if (drinks.length > 0) {
+      recalcSummary(drinks);
+    }
+    // eslint-disable-next-line
+  }, [ingredients]);
 
   return (
     <div className="min-h-screen bg-[#F5E9DA] flex flex-col items-center py-8 px-2 sm:px-4">
@@ -322,16 +390,31 @@ export default function TrialPage() {
         {/* Ingredients Table - Left Column */}
         <div className="w-full md:w-1/3 mb-4 md:mb-0 sticky top-24 self-start z-10">
           <div className="flex items-center gap-2 mb-2">
-            <span className="inline-block bg-[#A3B18A] text-white rounded-full w-7 h-7 flex items-center justify-center font-bold">1</span>
+            <ShoppingCart size={20} className="text-[#A3B18A]" />
             <h2 className="text-lg font-semibold text-[#6F4E37]">{language === 'vi' ? 'Nguyên liệu' : 'Ingredients'}</h2>
           </div>
           <div className="bg-white rounded-xl shadow border border-[#E6D3C5] p-3 overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="bg-[#F5E9DA] text-[#6F4E37]">
-                  <th className="py-2 px-2 text-left">{language === 'vi' ? 'Tên' : 'Name'}</th>
-                  <th className="py-2 px-2 text-right">{language === 'vi' ? 'Đơn vị' : 'Unit'}</th>
-                  <th className="py-2 px-2 text-right">{language === 'vi' ? 'Giá mỗi đơn vị' : 'Price/unit'}</th>
+                  <th className="py-2 px-2 text-left">
+                    <div className="flex items-center gap-1">
+                      <Package size={16} />
+                      {language === 'vi' ? 'Tên' : 'Name'}
+                    </div>
+                  </th>
+                  <th className="py-2 px-2 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Ruler size={16} />
+                      {language === 'vi' ? 'Đơn vị' : 'Unit'}
+                    </div>
+                  </th>
+                  <th className="py-2 px-2 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <DollarSign size={16} />
+                      {language === 'vi' ? 'Giá mỗi đơn vị' : 'Price/unit'}
+                    </div>
+                  </th>
                   <th className="py-2 px-2 text-center"></th>
                 </tr>
               </thead>
@@ -409,30 +492,60 @@ export default function TrialPage() {
           {data && drinks.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-4 border border-[#E6D3C5]">
               <div className="flex items-center gap-2 mb-2">
-                <span className="inline-block bg-[#FFB347] text-white rounded-full w-7 h-7 flex items-center justify-center font-bold">2</span>
+                <MenuSquare size={20} className="text-[#FFB347]" />
                 <h2 className="text-lg font-semibold text-[#6F4E37]">{language === 'vi' ? 'Menu' : 'Menu'}</h2>
               </div>
               <table className="w-full mb-2 border-collapse text-sm">
                 <thead>
                   <tr className="bg-[#F5E9DA] text-[#6F4E37]">
-                    <th className="py-2 px-2 text-left">{t.table.drink}</th>
-                    <th className="py-2 px-2 text-right">{t.table.cost}</th>
-                    <th className="py-2 px-2 text-right">{t.table.price}</th>
-                    <th className="py-2 px-2 text-right">{t.table.profit}</th>
-                    <th className="py-2 px-2 text-right">{t.table.margin}</th>
-                    <th className="py-2 px-2 text-center">{language === 'vi' ? 'Công thức' : 'Recipe'}</th>
+                    <th className="py-2 px-2 text-left">
+                      <div className="flex items-center gap-1">
+                        <Coffee size={16} />
+                        {t.table.drink}
+                      </div>
+                    </th>
+                    <th className="py-2 px-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Calculator size={16} />
+                        {t.table.cost}
+                      </div>
+                    </th>
+                    <th className="py-2 px-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <DollarSign size={16} />
+                        {t.table.price}
+                      </div>
+                    </th>
+                    <th className="py-2 px-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <DollarSign size={16} className="text-green-600" />
+                        {t.table.profit}
+                      </div>
+                    </th>
+                    <th className="py-2 px-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Percent size={16} />
+                        {t.table.margin}
+                      </div>
+                    </th>
+                    <th className="py-2 px-2 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <ChefHat size={16} />
+                        {language === 'vi' ? 'Công thức' : 'Recipe'}
+                      </div>
+                    </th>
                     <th className="py-2 px-2 text-center"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {drinks.map((drink, idx) => (
-                    <tr key={drink.name} className="border-t border-[#E6D3C5]">
+                    <tr key={drink.name} className={`border-t border-[#E6D3C5] ${openRecipe === drink.name ? 'bg-[#A3B18A]/20 border-[#A3B18A]' : 'hover:bg-[#F5E9DA]/60'} transition-colors`}>
                       <td className="py-2 px-2 font-medium text-[#6F4E37]">
                         <input
                           type="text"
                           value={drink.name}
                           onChange={e => handleUpdateDrink(idx, "name", e.target.value)}
-                          className="w-20 px-1 py-1 border border-[#E6D3C5] rounded text-left focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent bg-[#F5E9DA]/40"
+                          className={`w-20 px-1 py-1 border border-[#E6D3C5] rounded text-left focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent ${openRecipe === drink.name ? 'bg-[#A3B18A]/10 border-[#A3B18A]' : 'bg-[#F5E9DA]/40'}`}
                         />
                       </td>
                       <td className="py-2 px-2 text-right">{t.format(drink.cost * currencyMultiplier)} {t.currencySymbol}</td>
@@ -441,7 +554,7 @@ export default function TrialPage() {
                           type="text"
                           value={t.format(drink.price * currencyMultiplier)}
                           onChange={e => handleUpdateDrink(idx, "price", e.target.value)}
-                          className="w-16 px-1 py-1 border border-[#E6D3C5] rounded text-right focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent bg-[#F5E9DA]/40"
+                          className={`w-16 px-1 py-1 border border-[#E6D3C5] rounded text-right focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent ${openRecipe === drink.name ? 'bg-[#A3B18A]/10 border-[#A3B18A]' : 'bg-[#F5E9DA]/40'}`}
                         /> {t.currencySymbol}
                       </td>
                       <td className="py-2 px-2 text-right text-green-700">{t.format(drink.profit * currencyMultiplier)} {t.currencySymbol}</td>
@@ -490,15 +603,30 @@ export default function TrialPage() {
                 openRecipe === drink.name && (
                   <div key={drink.name + '-recipe'} className="mb-4 bg-[#F5E9DA]/60 rounded-lg p-3 border border-[#E6D3C5]">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="inline-block bg-[#6F4E37] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm">{drinkIdx + 1}</span>
+                      <UtensilsCrossed size={18} className="text-[#6F4E37]" />
                       <span className="text-lg font-bold text-[#6F4E37]">{drink.name}</span>
                     </div>
                     <table className="w-full border-collapse text-sm">
                       <thead>
                         <tr className="bg-[#F5E9DA] text-[#6F4E37]">
-                          <th className="py-1 px-2 text-left">{language === 'vi' ? 'Nguyên liệu' : 'Ingredient'}</th>
-                          <th className="py-1 px-2 text-right">{language === 'vi' ? 'Số lượng' : 'Quantity'}</th>
-                          <th className="py-1 px-2 text-right">{language === 'vi' ? 'Đơn vị' : 'Unit'}</th>
+                          <th className="py-1 px-2 text-left">
+                            <div className="flex items-center gap-1">
+                              <Package size={14} />
+                              {language === 'vi' ? 'Nguyên liệu' : 'Ingredient'}
+                            </div>
+                          </th>
+                          <th className="py-1 px-2 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Hash size={14} />
+                              {language === 'vi' ? 'Số lượng' : 'Quantity'}
+                            </div>
+                          </th>
+                          <th className="py-1 px-2 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Ruler size={14} />
+                              {language === 'vi' ? 'Đơn vị' : 'Unit'}
+                            </div>
+                          </th>
                           <th className="py-1 px-2 text-center"></th>
                         </tr>
                       </thead>
