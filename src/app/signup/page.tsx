@@ -62,9 +62,8 @@ export default function SignupPage() {
         },
       },
       sso: {
-        title: "Hoặc đăng ký với",
+        title: "Đăng ký với",
         google: "Tiếp tục với Google",
-        microsoft: "Tiếp tục với Microsoft",
         divider: "hoặc",
       },
       benefits: {
@@ -118,9 +117,8 @@ export default function SignupPage() {
         },
       },
       sso: {
-        title: "Or sign up with",
+        title: "Sign up with",
         google: "Continue with Google",
-        microsoft: "Continue with Microsoft",
         divider: "or",
       },
       benefits: {
@@ -229,7 +227,7 @@ export default function SignupPage() {
     }
   };
 
-  const handleSSO = async (provider: 'google' | 'microsoft') => {
+  const handleSSO = async (provider: 'google') => {
     setIsLoading(true);
     
     try {
@@ -291,19 +289,6 @@ export default function SignupPage() {
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
                     {t.sso.google}
-                  </button>
-                  <button
-                    onClick={() => handleSSO('microsoft')}
-                    disabled={isLoading}
-                    className="w-full bg-white border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center disabled:opacity-50"
-                  >
-                    <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                      <path fill="#f25022" d="M1 1h10v10H1z"/>
-                      <path fill="#7fba00" d="M13 1h10v10H13z"/>
-                      <path fill="#00a4ef" d="M1 13h10v10H1z"/>
-                      <path fill="#ffb900" d="M13 13h10v10H13z"/>
-                    </svg>
-                    {t.sso.microsoft}
                   </button>
                 </div>
                 <div className="relative my-6">

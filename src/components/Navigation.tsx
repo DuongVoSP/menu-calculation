@@ -5,16 +5,19 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { usePathname } from "next/navigation";
 
 export default function Navigation() {
   const { language } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const translations = {
     vi: {
       features: "Tính Năng",
       pricing: "Giá Cả",
       demo: "Demo",
+      trial: "Dùng Thử",
       contact: "Liên Hệ",
       login: "Đăng Nhập",
       signup: "Bắt Đầu",
@@ -23,6 +26,7 @@ export default function Navigation() {
       features: "Features",
       pricing: "Pricing",
       demo: "Demo",
+      trial: "Trial",
       contact: "Contact",
       login: "Login",
       signup: "Get Started",
@@ -49,16 +53,19 @@ export default function Navigation() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/features" className="text-gray-600 hover:text-amber-600 transition-colors">
+            <Link href="/features" className={`${pathname === '/features' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}>
               {t.features}
             </Link>
-            <Link href="/pricing" className="text-gray-600 hover:text-amber-600 transition-colors">
+            <Link href="/pricing" className={`${pathname === '/pricing' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}>
               {t.pricing}
             </Link>
-            <Link href="/demo" className="text-gray-600 hover:text-amber-600 transition-colors">
+            <Link href="/demo" className={`${pathname === '/demo' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}>
               {t.demo}
             </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-amber-600 transition-colors">
+            <Link href="/trial" className={`${pathname === '/trial' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}>
+              {t.trial}
+            </Link>
+            <Link href="/contact" className={`${pathname === '/contact' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}>
               {t.contact}
             </Link>
           </div>
@@ -100,28 +107,35 @@ export default function Navigation() {
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white/95 backdrop-blur-sm border-t border-amber-200">
               <Link 
                 href="/features" 
-                className="block px-3 py-2 text-gray-600 hover:text-amber-600 transition-colors"
+                className={`block px-3 py-2 ${pathname === '/features' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t.features}
               </Link>
               <Link 
                 href="/pricing" 
-                className="block px-3 py-2 text-gray-600 hover:text-amber-600 transition-colors"
+                className={`block px-3 py-2 ${pathname === '/pricing' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t.pricing}
               </Link>
               <Link 
                 href="/demo" 
-                className="block px-3 py-2 text-gray-600 hover:text-amber-600 transition-colors"
+                className={`block px-3 py-2 ${pathname === '/demo' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t.demo}
               </Link>
               <Link 
+                href="/trial" 
+                className={`block px-3 py-2 ${pathname === '/trial' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t.trial}
+              </Link>
+              <Link 
                 href="/contact" 
-                className="block px-3 py-2 text-gray-600 hover:text-amber-600 transition-colors"
+                className={`block px-3 py-2 ${pathname === '/contact' ? 'text-amber-600 font-bold' : 'text-gray-600'} hover:text-amber-600 transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t.contact}
