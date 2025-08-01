@@ -381,42 +381,45 @@ export default function TrialPage() {
   }, [ingredients]);
 
   return (
-    <div className="min-h-screen bg-[#F5E9DA] flex flex-col items-center py-8 px-2 sm:px-4">
+    <div className="min-h-screen bg-[#F5E9DA] flex flex-col items-center py-8 px-2 sm:px-4 pb-24 sm:pb-20">
       <h1 className="text-2xl sm:text-3xl font-bold text-[#6F4E37] mb-4">
         {t.title}
       </h1>
       {loading && <div className="text-lg text-[#6F4E37]">Loading...</div>}
       {error && <div className="text-red-600">{error}</div>}
-      <div className="w-full max-w-7xl flex flex-col md:flex-row gap-6 items-start">
+      <div className="w-full max-w-7xl flex flex-col lg:flex-row gap-6 items-start mb-20">
         {/* Ingredients Table - Left Column */}
-        <div className="w-full md:w-1/3 mb-4 md:mb-0 sticky top-24 self-start z-10">
+        <div className="w-full lg:w-1/3 mb-4 lg:mb-0 lg:sticky lg:top-24 self-start z-10">
           <div className="flex items-center gap-2 mb-2">
             <ShoppingCart size={20} className="text-[#A3B18A]" />
             <h2 className="text-lg font-semibold text-[#6F4E37]">{language === 'vi' ? 'Nguyên liệu' : 'Ingredients'}</h2>
           </div>
           <div className="bg-white rounded-xl shadow border border-[#E6D3C5] p-3 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className="w-full border-collapse text-sm min-w-[400px]">
               <thead>
                 <tr className="bg-[#F5E9DA] text-[#6F4E37]">
-                  <th className="py-2 px-2 text-left">
+                  <th className="py-2 px-2 text-left min-w-[100px]">
                     <div className="flex items-center gap-1">
-                      <Package size={16} />
-                      {language === 'vi' ? 'Tên' : 'Name'}
+                      <Package size={14} />
+                      <span className="hidden sm:inline">{language === 'vi' ? 'Tên' : 'Name'}</span>
+                      <span className="sm:hidden text-xs">{language === 'vi' ? 'Tên' : 'Name'}</span>
                     </div>
                   </th>
-                  <th className="py-2 px-2 text-right">
+                  <th className="py-2 px-2 text-right min-w-[60px]">
                     <div className="flex items-center justify-end gap-1">
-                      <Ruler size={16} />
-                      {language === 'vi' ? 'Đơn vị' : 'Unit'}
+                      <Ruler size={14} />
+                      <span className="hidden sm:inline">{language === 'vi' ? 'Đơn vị' : 'Unit'}</span>
+                      <span className="sm:hidden text-xs">{language === 'vi' ? 'ĐV' : 'Unit'}</span>
                     </div>
                   </th>
-                  <th className="py-2 px-2 text-right">
+                  <th className="py-2 px-2 text-right min-w-[120px]">
                     <div className="flex items-center justify-end gap-1">
-                      <DollarSign size={16} />
-                      {language === 'vi' ? 'Giá mỗi đơn vị' : 'Price/unit'}
+                      <DollarSign size={14} />
+                      <span className="hidden sm:inline">{language === 'vi' ? 'Giá mỗi đơn vị' : 'Price/unit'}</span>
+                      <span className="sm:hidden text-xs">{language === 'vi' ? 'Giá/ĐV' : 'Price/u'}</span>
                     </div>
                   </th>
-                  <th className="py-2 px-2 text-center"></th>
+                  <th className="py-2 px-2 text-center min-w-[40px]"></th>
                 </tr>
               </thead>
               <tbody>
@@ -427,7 +430,7 @@ export default function TrialPage() {
                         type="text"
                         value={ing.name}
                         onChange={e => handleUpdateIngredient(idx, "name", e.target.value)}
-                        className="w-20 px-1 py-1 border border-[#E6D3C5] rounded text-left focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent bg-[#F5E9DA]/40"
+                        className="w-24 sm:w-28 px-2 py-1 border border-[#E6D3C5] rounded text-left focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent bg-[#F5E9DA]/40"
                       />
                     </td>
                     <td className="py-2 px-2 text-right text-[#4B3A2F]">
@@ -443,7 +446,7 @@ export default function TrialPage() {
                         type="text"
                         value={t.format(ing.price * currencyMultiplier)}
                         onChange={e => handleUpdateIngredient(idx, "price", e.target.value)}
-                        className="w-16 px-1 py-1 border border-[#E6D3C5] rounded text-right focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent bg-[#F5E9DA]/40"
+                        className="w-20 sm:w-24 px-1 py-1 border border-[#E6D3C5] rounded text-right focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent bg-[#F5E9DA]/40"
                       /> <span className="text-[#A3B18A] font-semibold">{t.currencySymbol}</span>
                     </td>
                     <td className="py-2 px-2 text-center">
@@ -458,7 +461,7 @@ export default function TrialPage() {
                       value={newIngredient.name}
                       onChange={e => setNewIngredient({ ...newIngredient, name: e.target.value })}
                       placeholder={language === 'vi' ? 'Tên' : 'Name'}
-                      className="w-20 px-1 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
+                      className="w-24 sm:w-28 px-2 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
                     />
                   </td>
                   <td className="py-2 px-2 text-right">
@@ -476,7 +479,7 @@ export default function TrialPage() {
                       value={newIngredient.price}
                       onChange={e => setNewIngredient({ ...newIngredient, price: e.target.value })}
                       placeholder={language === 'vi' ? 'Giá' : 'Price'}
-                      className="w-16 px-1 py-1 border border-[#E6D3C5] rounded text-right bg-[#F5E9DA]/40"
+                      className="w-20 sm:w-24 px-1 py-1 border border-[#E6D3C5] rounded text-right bg-[#F5E9DA]/40"
                     /> <span className="text-[#A3B18A] font-semibold">{t.currencySymbol}</span>
                   </td>
                   <td className="py-2 px-2 text-center">
@@ -488,7 +491,7 @@ export default function TrialPage() {
           </div>
         </div>
         {/* Drinks Table - Right Column */}
-        <div className="w-full md:w-2/3 flex flex-col gap-6">
+        <div className="w-full lg:w-2/3 flex flex-col gap-6">
           {/* Drinks Table */}
           {data && drinks.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-4 border border-[#E6D3C5]">
@@ -496,46 +499,53 @@ export default function TrialPage() {
                 <MenuSquare size={20} className="text-[#FFB347]" />
                 <h2 className="text-lg font-semibold text-[#6F4E37]">{language === 'vi' ? 'Menu' : 'Menu'}</h2>
               </div>
-              <table className="w-full mb-2 border-collapse text-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full mb-2 border-collapse text-sm min-w-[800px]">
                 <thead>
                   <tr className="bg-[#F5E9DA] text-[#6F4E37]">
-                    <th className="py-2 px-2 text-left">
+                    <th className="py-2 px-2 text-left min-w-[170px]">
                       <div className="flex items-center gap-1">
                         <Coffee size={16} />
-                        {t.table.drink}
+                        <span className="hidden sm:inline">{t.table.drink}</span>
+                        <span className="sm:hidden text-xs">{language === 'vi' ? 'Đồ uống' : 'Drink'}</span>
                       </div>
                     </th>
-                    <th className="py-2 px-2 text-right">
+                    <th className="py-2 px-2 text-right min-w-[80px]">
                       <div className="flex items-center justify-end gap-1">
-                        <Calculator size={16} />
-                        {t.table.cost}
+                        <Calculator size={14} />
+                        <span className="hidden sm:inline">{t.table.cost}</span>
+                        <span className="sm:hidden text-xs">{language === 'vi' ? 'Vốn' : 'Cost'}</span>
                       </div>
                     </th>
-                    <th className="py-2 px-2 text-right">
+                    <th className="py-2 px-2 text-right min-w-[80px]">
                       <div className="flex items-center justify-end gap-1">
-                        <DollarSign size={16} />
-                        {t.table.price}
+                        <DollarSign size={14} />
+                        <span className="hidden sm:inline">{t.table.price}</span>
+                        <span className="sm:hidden text-xs">{language === 'vi' ? 'Giá' : 'Price'}</span>
                       </div>
                     </th>
-                    <th className="py-2 px-2 text-right">
+                    <th className="py-2 px-2 text-right min-w-[80px]">
                       <div className="flex items-center justify-end gap-1">
-                        <DollarSign size={16} className="text-green-600" />
-                        {t.table.profit}
+                        <DollarSign size={14} className="text-green-600" />
+                        <span className="hidden sm:inline">{t.table.profit}</span>
+                        <span className="sm:hidden text-xs">{language === 'vi' ? 'LN' : 'Profit'}</span>
                       </div>
                     </th>
-                    <th className="py-2 px-2 text-right">
+                    <th className="py-2 px-2 text-right min-w-[70px]">
                       <div className="flex items-center justify-end gap-1">
-                        <Percent size={16} />
-                        {t.table.margin}
+                        <Percent size={14} />
+                        <span className="hidden sm:inline">{t.table.margin}</span>
+                        <span className="sm:hidden text-xs">%</span>
                       </div>
                     </th>
-                    <th className="py-2 px-2 text-center">
+                    <th className="py-2 px-2 text-center min-w-[80px]">
                       <div className="flex items-center justify-center gap-1">
-                        <ChefHat size={16} />
-                        {language === 'vi' ? 'Công thức' : 'Recipe'}
+                        <ChefHat size={14} />
+                        <span className="hidden sm:inline">{language === 'vi' ? 'Công thức' : 'Recipe'}</span>
+                        <span className="sm:hidden text-xs">{language === 'vi' ? 'CT' : 'Recipe'}</span>
                       </div>
                     </th>
-                    <th className="py-2 px-2 text-center"></th>
+                    <th className="py-2 px-2 text-center min-w-[40px]"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -546,7 +556,7 @@ export default function TrialPage() {
                           type="text"
                           value={drink.name}
                           onChange={e => handleUpdateDrink(idx, "name", e.target.value)}
-                          className={`w-20 px-1 py-1 border border-[#E6D3C5] rounded text-left focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent ${openRecipe === drink.name ? 'bg-[#A3B18A]/10 border-[#A3B18A]' : 'bg-[#F5E9DA]/40'}`}
+                          className={`min-w-[150px] w-full sm:w-40 px-2 py-1 border border-[#E6D3C5] rounded text-left focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent ${openRecipe === drink.name ? 'bg-[#A3B18A]/10 border-[#A3B18A]' : 'bg-[#F5E9DA]/40'}`}
                         />
                       </td>
                       <td className="py-2 px-2 text-right">{t.format(drink.cost * currencyMultiplier)} {t.currencySymbol}</td>
@@ -555,7 +565,7 @@ export default function TrialPage() {
                           type="text"
                           value={t.format(drink.price * currencyMultiplier)}
                           onChange={e => handleUpdateDrink(idx, "price", e.target.value)}
-                          className={`w-16 px-1 py-1 border border-[#E6D3C5] rounded text-right focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent ${openRecipe === drink.name ? 'bg-[#A3B18A]/10 border-[#A3B18A]' : 'bg-[#F5E9DA]/40'}`}
+                          className={`w-24 sm:w-20 px-1 py-1 border border-[#E6D3C5] rounded text-right focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent ${openRecipe === drink.name ? 'bg-[#A3B18A]/10 border-[#A3B18A]' : 'bg-[#F5E9DA]/40'}`}
                         /> {t.currencySymbol}
                       </td>
                       <td className="py-2 px-2 text-right text-green-700">{t.format(drink.profit * currencyMultiplier)} {t.currencySymbol}</td>
@@ -580,7 +590,7 @@ export default function TrialPage() {
                         value={newDrink.name}
                         onChange={e => setNewDrink({ ...newDrink, name: e.target.value })}
                         placeholder={language === 'vi' ? 'Tên' : 'Name'}
-                        className="w-20 px-1 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
+                        className="min-w-[150px] w-full sm:w-40 px-2 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
                       />
                     </td>
                     <td></td>
@@ -590,7 +600,7 @@ export default function TrialPage() {
                         value={newDrink.price}
                         onChange={e => setNewDrink({ ...newDrink, price: e.target.value })}
                         placeholder={language === 'vi' ? 'Giá' : 'Price'}
-                        className="w-16 px-1 py-1 border border-[#E6D3C5] rounded text-right bg-[#F5E9DA]/40"
+                        className="w-20 sm:w-24 px-1 py-1 border border-[#E6D3C5] rounded text-right bg-[#F5E9DA]/40"
                       /> {t.currencySymbol}
                     </td>
                     <td colSpan={4} className="py-2 px-2 text-center">
@@ -599,6 +609,7 @@ export default function TrialPage() {
                   </tr>
                 </tbody>
               </table>
+              </div>
               {/* Collapsible Recipes */}
               {drinks.map((drink, drinkIdx) => (
                 openRecipe === drink.name && (
@@ -607,28 +618,32 @@ export default function TrialPage() {
                       <UtensilsCrossed size={18} className="text-[#6F4E37]" />
                       <span className="text-lg font-bold text-[#6F4E37]">{drink.name}</span>
                     </div>
-                    <table className="w-full border-collapse text-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse text-sm min-w-[400px]">
                       <thead>
                         <tr className="bg-[#F5E9DA] text-[#6F4E37]">
-                          <th className="py-1 px-2 text-left">
+                          <th className="py-1 px-2 text-left min-w-[120px]">
                             <div className="flex items-center gap-1">
-                              <Package size={14} />
-                              {language === 'vi' ? 'Nguyên liệu' : 'Ingredient'}
+                              <Package size={12} />
+                              <span className="hidden sm:inline">{language === 'vi' ? 'Nguyên liệu' : 'Ingredient'}</span>
+                              <span className="sm:hidden text-xs">{language === 'vi' ? 'NL' : 'Ingredient'}</span>
                             </div>
                           </th>
-                          <th className="py-1 px-2 text-right">
+                          <th className="py-1 px-2 text-right min-w-[80px]">
                             <div className="flex items-center justify-end gap-1">
-                              <Hash size={14} />
-                              {language === 'vi' ? 'Số lượng' : 'Quantity'}
+                              <Hash size={12} />
+                              <span className="hidden sm:inline">{language === 'vi' ? 'Số lượng' : 'Quantity'}</span>
+                              <span className="sm:hidden text-xs">{language === 'vi' ? 'SL' : 'Qty'}</span>
                             </div>
                           </th>
-                          <th className="py-1 px-2 text-right">
+                          <th className="py-1 px-2 text-right min-w-[60px]">
                             <div className="flex items-center justify-end gap-1">
-                              <Ruler size={14} />
-                              {language === 'vi' ? 'Đơn vị' : 'Unit'}
+                              <Ruler size={12} />
+                              <span className="hidden sm:inline">{language === 'vi' ? 'Đơn vị' : 'Unit'}</span>
+                              <span className="sm:hidden text-xs">{language === 'vi' ? 'ĐV' : 'Unit'}</span>
                             </div>
                           </th>
-                          <th className="py-1 px-2 text-center"></th>
+                          <th className="py-1 px-2 text-center min-w-[40px]"></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -638,11 +653,11 @@ export default function TrialPage() {
                               <select
                                 value={item.ingredient}
                                 onChange={e => handleUpdateRecipeItem(drinkIdx, itemIdx, "ingredient", e.target.value)}
-                                className="w-24 px-1 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
+                                className="w-full px-1 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
                               >
                                 {ingredients.map(ing => (
                                   <option key={ing.name} value={ing.name}>{ing.name}</option>
-                                ))}
+                                ))}  
                               </select>
                             </td>
                             <td className="py-1 px-2 text-right">
@@ -665,7 +680,7 @@ export default function TrialPage() {
                             <select
                               value={newRecipeItem.ingredient}
                               onChange={e => setNewRecipeItem({ ...newRecipeItem, ingredient: e.target.value })}
-                              className="w-24 px-1 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
+                              className="w-full px-1 py-1 border border-[#E6D3C5] rounded text-left bg-[#F5E9DA]/40"
                             >
                               <option value="">{language === 'vi' ? 'Chọn NL' : 'Select'}</option>
                               {ingredients.filter(ing => !drink.recipe.some(item => item.ingredient === ing.name)).map(ing => (
@@ -689,6 +704,7 @@ export default function TrialPage() {
                         </tr>
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 )
               ))}
@@ -700,18 +716,20 @@ export default function TrialPage() {
       {data && drinks.length > 0 && (
         <div
           ref={summaryRef}
-          className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-[#A3B18A]/90 to-[#6F4E37]/90 text-white shadow-lg py-3 px-4 flex flex-col sm:flex-row items-center justify-center gap-4 z-50"
+          className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-[#A3B18A]/90 to-[#6F4E37]/90 text-white shadow-lg py-2 sm:py-3 px-2 sm:px-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 z-50"
         >
-          <div className="font-semibold text-lg">{t.summary.title}</div>
-          <div>
-            {t.summary.totalProfit}:{" "}
+          <div className="font-semibold text-sm sm:text-lg">{t.summary.title}</div>
+          <div className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">{t.summary.totalProfit}: </span>
+            <span className="sm:hidden">{language === 'vi' ? 'Tổng LN: ' : 'Total: '}</span>
             <span className="font-bold text-green-200">
               {t.format(Number(data.summary.totalProfit) * currencyMultiplier)}{" "}
               {t.currencySymbol}
             </span>
           </div>
-          <div>
-            {t.summary.averageProfit}:{" "}
+          <div className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">{t.summary.averageProfit}: </span>
+            <span className="sm:hidden">{language === 'vi' ? 'TB LN: ' : 'Avg: '}</span>
             <span className="font-bold">
               {t.format(
                 Number(data.summary.averageProfit) * currencyMultiplier
@@ -719,9 +737,10 @@ export default function TrialPage() {
               {t.currencySymbol}
             </span>
           </div>
-          <div>
-            {t.summary.averageMargin}:{" "}
-            <span className="font-bold">{data.summary.averageMargin}</span>
+          <div className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">{t.summary.averageMargin}: </span>
+            <span className="sm:hidden">{language === 'vi' ? 'TB %: ' : 'Margin: '}</span>
+            <span className="font-bold">{data.summary.averageMargin}%</span>
           </div>
         </div>
       )}
