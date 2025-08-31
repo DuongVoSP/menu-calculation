@@ -716,31 +716,30 @@ export default function TrialPage() {
       {data && drinks.length > 0 && (
         <div
           ref={summaryRef}
-          className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-[#A3B18A]/90 to-[#6F4E37]/90 text-white shadow-lg py-2 sm:py-3 px-2 sm:px-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 z-50"
+          role="status"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+          className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-[#2E6C28] via-[#2A5B24] to-[#153812] text-white shadow-[0_12px_30px_rgba(0,0,0,0.6)] py-3 sm:py-4 px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 z-50 rounded-t-xl border-t-4 border-[#122e10]"
         >
-          <div className="font-semibold text-sm sm:text-lg">{t.summary.title}</div>
-          <div className="text-xs sm:text-sm">
-            <span className="hidden sm:inline">{t.summary.totalProfit}: </span>
-            <span className="sm:hidden">{language === 'vi' ? 'Tổng LN: ' : 'Total: '}</span>
-            <span className="font-bold text-green-200">
-              {t.format(Number(data.summary.totalProfit) * currencyMultiplier)}{" "}
-              {t.currencySymbol}
-            </span>
+          <div className="font-semibold text-base sm:text-xl tracking-wide drop-shadow-sm">{t.summary.title}</div>
+
+          <div className="text-sm sm:text-base flex items-baseline gap-2">
+            <span className="hidden sm:inline">{t.summary.totalProfit}:</span>
+            <span className="sm:hidden">{language === 'vi' ? 'Tổng LN:' : 'Total:'}</span>
+            <span className="font-extrabold text-white text-lg sm:text-2xl drop-shadow">{t.format(Number(data.summary.totalProfit) * currencyMultiplier)}</span>
+            <span className="text-sm sm:text-base text-white">{t.currencySymbol}</span>
           </div>
-          <div className="text-xs sm:text-sm">
-            <span className="hidden sm:inline">{t.summary.averageProfit}: </span>
-            <span className="sm:hidden">{language === 'vi' ? 'TB LN: ' : 'Avg: '}</span>
-            <span className="font-bold">
-              {t.format(
-                Number(data.summary.averageProfit) * currencyMultiplier
-              )}{" "}
-              {t.currencySymbol}
-            </span>
+
+          <div className="text-sm sm:text-base flex items-baseline gap-2">
+            <span className="hidden sm:inline">{t.summary.averageProfit}:</span>
+            <span className="sm:hidden">{language === 'vi' ? 'TB LN:' : 'Avg:'}</span>
+            <span className="font-bold text-white text-lg sm:text-xl">{t.format(Number(data.summary.averageProfit) * currencyMultiplier)}</span>
+            <span className="text-sm sm:text-base text-white">{t.currencySymbol}</span>
           </div>
-          <div className="text-xs sm:text-sm">
-            <span className="hidden sm:inline">{t.summary.averageMargin}: </span>
-            <span className="sm:hidden">{language === 'vi' ? 'TB %: ' : 'Margin: '}</span>
-            <span className="font-bold">{data.summary.averageMargin}%</span>
+
+          <div className="text-sm sm:text-base flex items-baseline gap-2">
+            <span className="hidden sm:inline">{t.summary.averageMargin}:</span>
+            <span className="sm:hidden">{language === 'vi' ? 'TB %:' : 'Margin:'}</span>
+            <span className="font-bold text-white text-lg sm:text-xl">{data.summary.averageMargin}%</span>
           </div>
         </div>
       )}
